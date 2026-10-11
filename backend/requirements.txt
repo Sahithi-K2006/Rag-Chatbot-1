@@ -1,0 +1,10 @@
+fastapi==0.143.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.0
+pydantic-settings==2.15.0
+python-multipart==0.0.32
+chromadb==1.5.9
+sentence-transformers==6.1.0
+pypdf==6.20.0
+google-genai==2.29.0
+httpx==0.28.1

@@ -1,0 +1,54 @@
+# Render Blueprint: backend web service with a persistent disk + static frontend.
+# Deploy: Render dashboard -> New -> Blueprint -> pick this repo. You'll be asked for the `sync: false` values.
+services:
+  - type: web
+    name: knowledgebridge-api
+    runtime: python
+    rootDir: backend
+    # A persistent disk requires a paid instance. torch + the embedding model need ~1 GB RAM, so use
+    # "standard" (2 GB); "starter" (512 MB) is likely to run out of memory.
+    plan: standard
+    numInstances: 1  # rate limits, locks and the Chroma index are per-process; don't scale horizontally
+    buildCommand: pip install --upgrade pip && pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /api/ready
+    disk:
+      name: knowledgebridge-data
+      mountPath: /var/data
+      sizeGB: 2
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: ENVIRONMENT
+        value: production
+      - key: DATA_DIR
+        value: /var/data/kb
+      - key: HF_HOME  # keep the downloaded embedding model on the disk across deploys
+        value: /var/data/hf-cache
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: API_ACCESS_KEY
+        sync: false
+      - key: CORS_ORIGINS  # the frontend's public URL, e.g. https://knowledgebridge-web.onrender.com
+        sync: false
+      - key: LLM_MODEL
+        value: gemini-2.5-flash
+      - key: LLM_ROUTER_MODEL
+        value: gemini-2.5-flash-lite
+
+  - type: web
+    name: knowledgebridge-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL  # the backend's public URL, e.g. https://knowledgebridge-api.onrender.com
+        sync: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer

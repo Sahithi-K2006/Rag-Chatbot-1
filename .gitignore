@@ -1,0 +1,24 @@
+# secrets & local data — never commit
+backend/.env
+backend/data/
+# environments & build output
+backend/.venv/
+frontend/node_modules/
+frontend/dist/
+__pycache__/
+.pytest_cache/
+.DS_Store
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Dependencies and generated files
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store

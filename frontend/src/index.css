@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/* KnowledgeBridge design tokens. Light only.
+   Ivory canvas, white working surfaces, ink text, blue for actions, indigo for brand/identity,
+   highlighter yellow reserved for marking evidence inside source excerpts. */
+@theme {
+  --font-sans: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Literata", Georgia, "Times New Roman", serif;
+
+  --color-ivory: #fbf9f4; /* page canvas */
+  --color-paper: #f5f2ea; /* sidebar, quiet fills */
+  --color-ink: #1a2036; /* text: 15.6:1 on ivory */
+  --color-graphite: #596075; /* secondary text: 6.0:1 on ivory */
+  --color-rule: #e5e0d5; /* hairlines on ivory */
+  --color-bridge: #3a56d4; /* actions & links: 5.6:1 on white */
+  --color-bridge-deep: #2c42a8;
+  --color-indigo: #5146c9; /* brand accent */
+  --color-wash: #eef0fc; /* selected / user message */
+  --color-marker: #fff1a8; /* evidence highlight */
+
+  --radius-card: 18px;
+  --shadow-soft: 0 1px 2px rgb(26 32 54 / 0.04), 0 6px 20px -10px rgb(26 32 54 / 0.12);
+  --shadow-float: 0 1px 2px rgb(26 32 54 / 0.05), 0 18px 48px -20px rgb(56 62 140 / 0.35);
+
+  --animate-fade-in: fade-in 0.6s ease-out both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Cursor buddy blink: eyes close briefly near the end of each cycle. */
+@keyframes bb-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@layer base {
+  html { color-scheme: light; }
+  body { @apply bg-ivory text-ink font-sans antialiased; }
+  :focus-visible { outline: 2px solid var(--color-bridge); outline-offset: 2px; }
+  ::selection { background: var(--color-marker); color: var(--color-ink); }
+  dialog::backdrop { background: rgb(26 32 54 / 0.18); }
+  /* Tactile press on every button; motion.button's whileTap overrides this with its own spring. */
+  button { transition-property: color, background-color, box-shadow, opacity, transform; transition-duration: 160ms; transition-timing-function: cubic-bezier(.22,1,.36,1); }
+  button:not(:disabled):active { transform: scale(0.96); transition-duration: 60ms; }
+  mark { background: linear-gradient(transparent 12%, var(--color-marker) 12%, var(--color-marker) 88%, transparent 88%); color: inherit; padding: 0 1px; }
+}
+
+@layer components {
+  /* Restrained "liquid glass": translucent white, light blur, a bright top edge and a soft float shadow.
+     Opaque enough that text behind never competes with text on top. */
+  .glass {
+    background: rgb(255 255 255 / 0.78);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+    border: 1px solid rgb(255 255 255 / 0.85);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.95), 0 0 0 1px rgb(26 32 54 / 0.06), var(--shadow-float);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass { background: rgb(255 255 255 / 0.97); }
+  }
+  .card { background: white; border-radius: var(--radius-card); box-shadow: 0 0 0 1px rgb(26 32 54 / 0.06), var(--shadow-soft); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
